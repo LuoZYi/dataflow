@@ -1,10 +1,12 @@
 This repository contains scripts standardizing pathological datasets
+
 - GlaS
 - Lizard
 - PaNNuke
 - ConSep
 - CRAG
 - BCSS
+  
 including a range of 20x to 40x magnification in pathology, as well as tissues/glands and nuclei segmentation, in the format of both semantic and instance segmentation. 
 
 Adapters contains dataset conversion scripts. 
