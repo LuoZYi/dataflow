@@ -1,0 +1,34 @@
+defaults:
+  - _self_
+
+launcher:
+  num_nodes: 1
+  gpus_per_node: 1
+  experiment_log_dir: /home/path_sam3/dataflow/runs/sam3_pathology_eval
+
+submitit:
+  use_cluster: false
+  timeout_hour: 24
+  cpus_per_task: 8
+  partition: null
+  name: sam3_pathology_eval
+  port_range: [15000, 19999]
+
+trainer:
+  _target_: dataflow_train.trainers.sam3_external_trainer.SAM3ExternalTrainer
+  out_dir: ${launcher.experiment_log_dir}
+
+  sam3_repo_root: /home/path_sam3/SAM3
+  sam3_config: sam3/train/configs/pathology/pathology_semantic_eval.yaml
+
+  patch_experiment_log_dir: true
+
+  use_cluster: ${submitit.use_cluster}
+  partition: ${submitit.partition}
+  account: null
+  qos: null
+  num_gpus: ${launcher.gpus_per_node}
+  num_nodes: ${launcher.num_nodes}
+
+  extra_env: {}
+  extra_cli: ""

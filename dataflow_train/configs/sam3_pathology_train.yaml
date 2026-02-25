@@ -1,0 +1,42 @@
+defaults:
+  - _self_
+
+launcher:
+  num_nodes: 1
+  gpus_per_node: 1
+  experiment_log_dir: /home/path_sam3/dataflow/runs/sam3_pathology_train
+
+submitit:
+  use_cluster: false
+  timeout_hour: 24
+  cpus_per_task: 8
+  partition: null
+  name: sam3_pathology_train
+  port_range: [15000, 19999]
+
+trainer:
+  _target_: dataflow_train.trainers.sam3_external_trainer.SAM3ExternalTrainer
+  out_dir: ${launcher.experiment_log_dir}
+
+  # repo 根目录：里面应当有 sam3/ 目录
+  sam3_repo_root: /home/path_sam3/sam3
+
+  # 指向“你为病理数据写的 SAM3 job config”（下面我给你 stub）
+  # 可以放在 sam3/train/configs/pathology/pathology_semantic_train.yaml
+  sam3_config: sam3/train/configs/pathology/pathology_semantic_train.yaml
+
+  # 把 SAM3 的 experiment_log_dir 强制指到 out_dir（推荐开）
+  patch_experiment_log_dir: true
+
+  # 这些参数会原样传给 sam3/train/train.py
+  use_cluster: ${submitit.use_cluster}
+  partition: ${submitit.partition}
+  account: null
+  qos: null
+  num_gpus: ${launcher.gpus_per_node}
+  num_nodes: ${launcher.num_nodes}
+
+  extra_env: {}
+
+  # 你如果找到 SAM3 支持的“少步数参数”，可以塞这里（否则留空）
+  extra_cli: ""

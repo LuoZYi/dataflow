@@ -1,0 +1,108 @@
+# # @package _global_
+# defaults:
+#   - _self_
+
+# paths:
+#   experiment_log_dir: /home/path_sam3/dataflow/runs/semantic_unet_hydra
+#   db_root: /home/path_sam3/dataflow/parquet_db/v1
+#   dataset_roots:
+#     glas:   /home/path_sam3/pipeline/data_links/GlaS/GlaS
+#     consep: /home/path_sam3/pipeline/data_links/CoNSeP/CoNSeP
+#     crag:   /home/path_sam3/pipeline/data_links/CRAG/CRAG
+#     bcss:   /home/path_sam3/pipeline/data_links/BCSS/BCSS
+#     lizard: /home/path_sam3/pipeline/data_links/Lizard
+#     pannuke: /home/path_sam3/pipeline/data_links/PanNuke
+
+# scratch:
+#   seed: 0
+#   datasets: ["crag"]              # 先单个，后面改成多个
+#   patch: 512
+#   ann_name: ann_semantic.parquet  # 语义训练
+#   batch_size: 8
+#   num_workers: 4
+#   epochs: 50
+#   lr: 1e-3
+#   wd: 1e-4
+#   amp: true
+#   device: cuda
+#   debug_vis: 16
+
+# trainer:
+#   _target_: dataflow_train.trainer.SemanticUNetTrainer
+#   experiment_log_dir: ${paths.experiment_log_dir}
+#   db_root: ${paths.db_root}
+#   dataset_roots: ${paths.dataset_roots}
+#   datasets: ${scratch.datasets}
+#   ann_name: ${scratch.ann_name}
+#   patch: ${scratch.patch}
+#   batch_size: ${scratch.batch_size}
+#   num_workers: ${scratch.num_workers}
+#   epochs: ${scratch.epochs}
+#   lr: ${scratch.lr}
+#   weight_decay: ${scratch.wd}
+#   amp: ${scratch.amp}
+#   device: ${scratch.device}
+#   seed: ${scratch.seed}
+#   debug_vis: ${scratch.debug_vis}
+
+# launcher:
+#   num_nodes: 1
+#   gpus_per_node: 1
+#   experiment_log_dir: ${paths.experiment_log_dir}
+
+# submitit:
+#   use_cluster: false
+#   timeout_hour: 24
+#   cpus_per_task: 8
+#   port_range: [10000, 65000]
+#   partition: null
+#   account: null
+#   qos: null
+
+
+# dataflow_train/configs/semantic_unet.yaml
+trainer:
+  _target_: dataflow_train.trainers.semantic_trainer.SemanticUNetTrainer
+
+  out_dir: ${launcher.experiment_log_dir}
+
+  db_root: /home/path_sam3/dataflow/parquet_db/v1
+  datasets: [crag]
+  ann_file: ann_semantic.parquet
+
+  dataset_roots:
+    glas: /home/path_sam3/pipeline/data_links/GlaS/GlaS
+    consep: /home/path_sam3/pipeline/data_links/CoNSeP/CoNSeP
+    crag: /home/path_sam3/pipeline/data_links/CRAG/CRAG
+    bcss: /home/path_sam3/pipeline/data_links/BCSS/BCSS
+    lizard: /home/path_sam3/pipeline/data_links/Lizard
+    pannuke: /home/path_sam3/pipeline/data_links/PanNuke
+
+  patch_size: 512
+  epochs: 5
+  train_epoch_size: 2000
+  batch_size: 8
+  num_workers: 4
+  lr: 3e-4
+  wd: 1e-4
+  seed: 42
+  amp: true
+  log_freq: 20
+
+  debug_vis_full: 4
+  debug_vis_thr: 0.5
+  debug_vis_max_side: 1600
+  stride: 256
+
+  pos_fraction: 0.7
+  cache_slides: 64
+
+  # ✅ 建议补上这两行
+  use_meta_split: true
+  val_ratio: 0.1
+
+
+  dry_run: false
+  dry_run_train_steps: 50
+  dry_run_val_steps: 200
+

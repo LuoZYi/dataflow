@@ -1,0 +1,65 @@
+# dataflow_train/configs/instance_hovernet.yaml
+defaults:
+  - _self_
+
+launcher:
+  num_nodes: 1
+  gpus_per_node: 1
+  experiment_log_dir: /home/path_sam3/dataflow/runs/instance_hovernet
+
+submitit:
+  use_cluster: false
+  timeout_hour: 24
+  cpus_per_task: 8
+  partition: null
+  name: instance_hovernet
+  port_range: [15000, 19999]
+
+trainer:
+  _target_: dataflow_train.trainers.instance_trainer.HoverNetTrainer
+  out_dir: ${launcher.experiment_log_dir}
+
+  db_root: /home/path_sam3/dataflow/parquet_db/v1
+  datasets: [consep]                 # 建议先用 instance 数据集：consep / lizard / pannuke / crag(如果有instance)
+  ann_file: ann_instance.parquet
+
+  dataset_roots:
+    glas: /home/path_sam3/pipeline/data_links/GlaS/GlaS
+    consep: /home/path_sam3/pipeline/data_links/CoNSeP/CoNSeP
+    crag: /home/path_sam3/pipeline/data_links/CRAG/CRAG
+    bcss: /home/path_sam3/pipeline/data_links/BCSS/BCSS
+    lizard: /home/path_sam3/pipeline/data_links/Lizard
+    pannuke: /home/path_sam3/pipeline/data_links/PanNuke
+
+  patch_size: 512
+  epochs: 30
+  train_epoch_size: 4000
+  batch_size: 6
+  num_workers: 4
+  lr: 3e-4
+  wd: 1e-4
+  seed: 42
+  amp: true
+  log_freq: 20
+
+  # split
+  use_meta_split: true
+  val_ratio: 0.1
+
+  # sampling/cache
+  pos_fraction: 0.8
+  cache_slides: 64
+
+  # loss weights
+  np_loss_w: 1.0
+  hv_loss_w: 2.0
+
+  # debug patches (最重要：确认 instance target 对齐)
+  debug_vis_patches: 20
+  debug_vis_thr: 0.5
+  debug_vis_max_side: 1600
+
+  # dry run
+  dry_run: false
+  dry_run_train_steps: 50
+  dry_run_val_steps: 50
