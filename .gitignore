@@ -9,9 +9,15 @@ __pycache__/
 *.bmp
 *.png
 *.npy
+*.log
+*.json
+*.jsonl
 
 # 日志与输出
 runs/
 parquet_db/
+debug/
+
+
 
 
