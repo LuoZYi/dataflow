@@ -12,11 +12,20 @@ __pycache__/
 *.log
 *.json
 *.jsonl
+*.bak
+
 
 # 日志与输出
 runs/
 parquet_db/
 debug/
+generated_images/
+generated_coco/
+generated_mpp_dataset/
+logs/
+segpath_clean_adapter_verify/
+segpath_clean_adapter_verify_sample/
+segpath_parquet_verify_sample/
 
 
 

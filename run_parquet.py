@@ -91,6 +91,10 @@ def make_adapter(dataset: str, root: Path, args: argparse.Namespace):
         GlaSAdapter,
         LizardAdapter,
         PanNukeAdapter,
+        WSSS4LUADAdapter,
+        SICAPv2Adapter,
+        CoCaHisAdapter,
+        SegPathCleanAdapter,
     )
 
     d = dataset.lower()
@@ -112,6 +116,31 @@ def make_adapter(dataset: str, root: Path, args: argparse.Namespace):
         return LizardAdapter(root)
     if d == "pannuke":
         return PanNukeAdapter(root)
+    if d in {"wsss4luad", "wsss_luad", "wsss"}:
+        return WSSS4LUADAdapter(
+            root,
+            include_train=False,
+            include_val=True,
+            include_test=False,
+        )
+    if d == "sicapv2":
+        return SICAPv2Adapter(
+            root,
+            split_mode="official",
+            val_fold=args.sicap_val_fold,
+            skip_unlisted=bool(args.sicap_skip_unlisted),
+            min_area=args.sicap_min_area,
+        )
+    if d == "cocahis":
+        return CoCaHisAdapter(root, image_key="raw", gt_key="GT_majority_vote")
+    if d in {"segpath", "segpath_clean"}:
+        return SegPathCleanAdapter(
+            root,
+            min_area=args.segpath_min_area,
+            label_mode=args.segpath_label_mode,
+            split=args.segpath_split,
+        )
+
     raise ValueError(f"Unknown dataset: {dataset}")
 
 
@@ -395,6 +424,14 @@ def main():
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--val_ratio", type=float, default=0.1)
     ap.add_argument("--test_ratio", type=float, default=0.1)
+    ap.add_argument("--sicap_val_fold", type=int, default=1, help="SICAPv2 validation fold: 1/2/3/4")
+    ap.add_argument("--sicap_skip_unlisted", type=int, default=1, help="SICAPv2: skip samples not listed in partition xlsx")
+    ap.add_argument("--sicap_min_area", type=int, default=64, help="SICAPv2: skip decoded semantic masks smaller than this area")
+
+    # SegPath clean knobs
+    ap.add_argument("--segpath_min_area", type=int, default=1, help="SegPathClean: skip masks with area smaller than this threshold")
+    ap.add_argument("--segpath_label_mode", choices=["prefix", "leaf", "relative"], default="prefix", help="SegPathClean category naming mode")
+    ap.add_argument("--segpath_split", type=str, default="unspecified", help="SegPathClean split name when no split file is used")
 
     # mpp defaults (used only if adapter doesn't provide)
     ap.add_argument("--mpp", type=float, default=None, help="Default mpp (um/px). Sets both mpp_x and mpp_y.")

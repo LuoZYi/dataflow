@@ -5,6 +5,9 @@ from .bcss import BCSSAdapter
 from .glas import GlaSAdapter
 from .lizard import LizardAdapter
 from .pannuke import PanNukeAdapter
+from .cocahis import CoCaHisAdapter
+from .sicapv2 import SICAPv2Adapter
+from .wsss4luad import WSSS4LUADAdapter
 
 __all__ = [
     "ConSepAdapter",
@@ -13,4 +16,8 @@ __all__ = [
     "GlaSAdapter",
     "LizardAdapter",
     "PanNukeAdapter",
+    "CoCaHisAdapter",
+    "SICAPv2Adapter",
+    "WSSS4LUADAdapter",
 ]
+from .segpath_clean import SegPathCleanAdapter
